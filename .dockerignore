@@ -7,8 +7,10 @@ docs*
 vendor*
 tests*
 
-README.md
-README.md.bu
 LICENSE
-CHANGELOG.md
 Makefile
+README*
+CHANGELOG.md
+scan_test.go
+Gopkg.toml
+Gopkg.lock

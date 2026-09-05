@@ -9,12 +9,11 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strings"
 	"time"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"github.com/fatih/structs"
 	"github.com/gorilla/mux"
 	"github.com/malice-plugins/pkgs/database"
@@ -74,32 +73,6 @@ func assert(err error) {
 			}).Fatal(err)
 		}
 	}
-}
-
-// RunCommand runs cmd on file
-func RunCommand(ctx context.Context, cmd string, args ...string) (string, error) {
-
-	var c *exec.Cmd
-
-	if ctx != nil {
-		c = exec.CommandContext(ctx, cmd, args...)
-	} else {
-		c = exec.Command(cmd, args...)
-	}
-
-	output, err := c.CombinedOutput()
-	if err != nil {
-		return string(output), err
-	}
-
-	// check for exec context timeout
-	if ctx != nil {
-		if ctx.Err() == context.DeadlineExceeded {
-			return "", fmt.Errorf("command %s timed out", cmd)
-		}
-	}
-
-	return string(output), nil
 }
 
 // AvScan performs antivirus scan
@@ -228,7 +201,9 @@ func webAvScan(w http.ResponseWriter, r *http.Request) {
 	defer os.Remove(tmpfile.Name()) // clean up
 
 	data, err := ioutil.ReadAll(file)
-	assert(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	if _, err = tmpfile.Write(data); err != nil {
 		log.Fatal(err)
